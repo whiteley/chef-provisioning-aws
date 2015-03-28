@@ -441,7 +441,7 @@ EOD
       end
 
       if instance.status != :running
-        wait_until_machine(action_handler, machine_spec, instance) { instance.status != :stopping }
+        wait_until_machine(action_handler, machine_spec, "finish stopping so we can start it", "stopped", instance) { instance.status != :stopping }
         if instance.status == :stopped
           action_handler.perform_action "Start #{machine_spec.name} (#{machine_spec.reference['instance_id']}) in #{aws_config.region} ..." do
             instance.start
@@ -462,6 +462,19 @@ EOD
       end
 
       machine_for(machine_spec, machine_spec.reference)
+    end
+
+    def stop_machine(action_handler, machine_spec, machine_options)
+      instance = instance_for(machine_spec)
+      if instance && instance.exists?
+        wait_until_machine(action_handler, machine_spec, "finish coming up so we can stop it", "up", instance) { instance.status != :pending }
+        if instance.status == :running
+          action_handler.perform_action "Stop #{machine_spec.name} (#{instance.id}) in #{aws_config.region} ..." do
+            instance.stop
+          end
+        end
+        wait_until_machine(action_handler, machine_spec, "stop", "stopped", instance) { [ :stopped, :terminated ].include?(instance.status) }
+      end
     end
 
     def destroy_machine(action_handler, machine_spec, machine_options)
@@ -825,26 +838,26 @@ EOD
     end
 
     def wait_until_ready_machine(action_handler, machine_spec, instance=nil)
-      wait_until_machine(action_handler, machine_spec, instance) { instance.status == :running }
+      wait_until_machine(action_handler, machine_spec, "be ready", "ready", instance) { instance.status == :running }
     end
 
-    def wait_until_machine(action_handler, machine_spec, instance=nil, &block)
+    def wait_until_machine(action_handler, machine_spec, waiting_for_it_to, is_already, instance=nil, &block)
       instance ||= instance_for(machine_spec)
       time_elapsed = 0
       sleep_time = 10
       max_wait_time = 120
       if !yield(instance)
         if action_handler.should_perform_actions
-          action_handler.report_progress "waiting for #{machine_spec.name} (#{instance.id} on #{driver_url}) to be ready ..."
+          action_handler.report_progress "waiting for #{machine_spec.name} (#{instance.id} on #{driver_url}) to #{waiting_for_it_to} ..."
           while time_elapsed < max_wait_time && !yield(instance)
-            action_handler.report_progress "been waiting #{time_elapsed}/#{max_wait_time} -- sleeping #{sleep_time} seconds for #{machine_spec.name} (#{instance.id} on #{driver_url}) to be ready ..."
+            action_handler.report_progress "been waiting #{time_elapsed}/#{max_wait_time} -- sleeping #{sleep_time} seconds for #{machine_spec.name} (#{instance.id} on #{driver_url}) to #{waiting_for_it_to} ..."
             sleep(sleep_time)
             time_elapsed += sleep_time
           end
           unless yield(instance)
-            raise "Image #{instance.id} did not become ready within 120 seconds"
+            raise "Image #{instance.id} never #{is_already} within 120 seconds"
           end
-          action_handler.report_progress "#{machine_spec.name} is now ready"
+          action_handler.report_progress "#{machine_spec.name} is now #{is_already}"
         end
       end
     end
