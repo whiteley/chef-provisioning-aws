@@ -24,13 +24,32 @@ describe "AWS Tagged Items" do
 
         expect_recipe {
           aws_ebs_volume "test_volume_a" do
-            aws_tags :Name => 'test_volume_b', :project => 'X'
+            aws_tags 'Name' => 'test_volume_b', :project => 'X'
           end
         }.to have_aws_ebs_volume_tags('test_volume_a',
                                       { 'Name' => 'test_volume_b',
                                         'project' => 'X'
                                       })
       end
+
+      it "aws_ebs_volume 'test_volume' tags are not changed when not updated" do
+        expect_recipe {
+          aws_ebs_volume "test_volume_c" do
+            aws_tags :byebye => 'true'
+          end
+        }.to have_aws_ebs_volume_tags('test_volume_c',
+                                      { 'Name' => 'test_volume_c',
+                                        'byebye' => 'true'
+                                      })
+
+        expect_recipe {
+          aws_ebs_volume "test_volume_c"
+        }.to have_aws_ebs_volume_tags('test_volume_c',
+                                      { 'Name' => 'test_volume_c',
+                                        'byebye' => 'true'
+                                      })
+      end
+
 
       it "aws_ebs_volume 'test_volume' created with new Name tag" do
         expect_recipe {
