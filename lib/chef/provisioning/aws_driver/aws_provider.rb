@@ -223,7 +223,17 @@ class AWSProvider < Chef::Provider::LWRPBase
     raise NotImplementedError, :destroy_aws_object
   end
 
-  # TODO documentation and tests
+  # Update AWS resource tags
+  #
+  # AWS resources which include the TaggedItem Module
+  # will have an 'aws_tags' attribute available.
+  # The 'aws_tags' Hash will apply all the tags within
+  # the hash, and remove existing tags not included within
+  # the hash.  The 'Name' tag will not removed.  The 'Name'
+  # tag can still be updated in the hash.
+  #
+  # @param aws_object Aws SDK Object to update tags
+  #
   def converge_tags(aws_object)
     desired_tags = new_resource.aws_tags
     # If aws_tags were not provided we exit
