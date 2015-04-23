@@ -26,13 +26,6 @@ module AWSSupport
       def match_failure_messages(recipe)
         differences = []
 
-        # Converge
-        begin
-          recipe.converge
-        rescue
-          differences += [ "error trying to update #{resource_name}[#{name}]!\n#{($!.backtrace.map { |line| "- #{line}\n" } + [ recipe.output_for_failure_message ]).join("")}" ]
-        end
-
         # Check for object existence and properties
         resource = resource_class.new(name, nil)
         resource.driver example.driver

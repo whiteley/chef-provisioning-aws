@@ -8,7 +8,8 @@ describe "AWS Tagged Items" do
       it "aws_ebs_volume 'test_volume' created with default Name tag" do
         expect_recipe {
           aws_ebs_volume "test_volume"
-        }.to have_aws_ebs_volume_tags('test_volume',
+        }.to create_an_aws_ebs_volume('test_volume'
+        ).and have_aws_ebs_volume_tags('test_volume',
                        { 'Name' => 'test_volume' } )
       end
 
@@ -17,7 +18,8 @@ describe "AWS Tagged Items" do
           aws_ebs_volume "test_volume_a" do
             aws_tags :byebye => 'true'
           end
-        }.to have_aws_ebs_volume_tags('test_volume_a',
+        }.to create_an_aws_ebs_volume('test_volume_a'
+        ).and have_aws_ebs_volume_tags('test_volume_a',
                                       { 'Name' => 'test_volume_a',
                                         'byebye' => 'true'
                                       })
@@ -26,7 +28,8 @@ describe "AWS Tagged Items" do
           aws_ebs_volume "test_volume_a" do
             aws_tags 'Name' => 'test_volume_b', :project => 'X'
           end
-        }.to have_aws_ebs_volume_tags('test_volume_a',
+        }.to update_an_aws_ebs_volume('test_volume_a'
+        ).and have_aws_ebs_volume_tags('test_volume_a',
                                       { 'Name' => 'test_volume_b',
                                         'project' => 'X'
                                       })
@@ -37,7 +40,8 @@ describe "AWS Tagged Items" do
           aws_ebs_volume "test_volume_c" do
             aws_tags :byebye => 'true'
           end
-        }.to have_aws_ebs_volume_tags('test_volume_c',
+        }.to create_an_aws_ebs_volume('test_volume_c'
+        ).and have_aws_ebs_volume_tags('test_volume_c',
                                       { 'Name' => 'test_volume_c',
                                         'byebye' => 'true'
                                       })
@@ -56,7 +60,8 @@ describe "AWS Tagged Items" do
           aws_ebs_volume "test_volume_2" do
             aws_tags :Name => 'test_volume_new'
           end
-        }.to have_aws_ebs_volume_tags('test_volume_2',
+        }.to create_an_aws_ebs_volume('test_volume_2'
+        ).and have_aws_ebs_volume_tags('test_volume_2',
                                       { 'Name' => 'test_volume_new' } )
       end
 
@@ -65,7 +70,8 @@ describe "AWS Tagged Items" do
           aws_ebs_volume "test_volume_3" do
             aws_tags :project => 'aws-provisioning'
           end
-        }.to have_aws_ebs_volume_tags('test_volume_3',
+        }.to create_an_aws_ebs_volume('test_volume_3'
+        ).and have_aws_ebs_volume_tags('test_volume_3',
                                       { 'Name' => 'test_volume_3',
                                         'project' => 'aws-provisioning'
                                       })
@@ -82,7 +88,8 @@ describe "AWS Tagged Items" do
           aws_instance "test_instance" do
             aws_tags :project => 'FUN'
           end
-        }.to have_aws_instance_tags('test_instance',
+        }.to update_an_aws_instance('test_instance'
+        ).and have_aws_instance_tags('test_instance',
                                       { 'Name' => 'test_instance',
                                         'project' => 'FUN'
                                       })
