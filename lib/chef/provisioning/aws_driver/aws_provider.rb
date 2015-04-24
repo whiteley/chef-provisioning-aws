@@ -226,7 +226,7 @@ class AWSProvider < Chef::Provider::LWRPBase
   # TODO documentation and tests
   def converge_tags(aws_object)
     current_tags = aws_object.tags.to_h
-    desired_tags = new_resource.tags
+    desired_tags = new_resource.aws_tags
     # AWS always returns tags as strings, and we don't want to overwrite a
     # tag-as-string with the same tag-as-symbol
     desired_tags = Hash[desired_tags.map {|k, v| [k.to_s, v.to_s] }]
@@ -240,7 +240,7 @@ class AWSProvider < Chef::Provider::LWRPBase
       end
     end
     unless tags_to_delete.empty?
-      converge_by "deleting tags #{tags_to_delete}" do
+      converge_by "deleting tags #{tags_to_delete.inspect}" do
         aws_object.tags.delete(*tags_to_delete)
       end
     end

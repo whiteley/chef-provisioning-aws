@@ -13,6 +13,7 @@ module AWSSupport
   require 'aws_support/matchers/create_an_aws_object'
   require 'aws_support/matchers/update_an_aws_object'
   require 'aws_support/matchers/destroy_an_aws_object'
+  require 'aws_support/matchers/have_aws_object_tags'
   require 'aws_support/delayed_stream'
   require 'chef/provisioning/aws_driver/resources'
   require 'aws_support/aws_resource_run_wrapper'
@@ -188,6 +189,9 @@ module AWSSupport
       end
       define_method("create_an_#{resource_name}") do |name, expected_values={}|
         AWSSupport::Matchers::CreateAnAWSObject.new(self, resource_class, name, expected_values)
+      end
+      define_method("have_#{resource_name}_tags") do |name, expected_tags={}|
+        AWSSupport::Matchers::HaveAWSObjectTags.new(self, resource_class, name, expected_tags)
       end
       define_method("destroy_an_#{resource_name}") do |name, expected_values={}|
         AWSSupport::Matchers::DestroyAnAWSObject.new(self, resource_class, name)

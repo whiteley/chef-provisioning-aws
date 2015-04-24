@@ -4,7 +4,7 @@ require 'aws_support/deep_matcher'
 
 module AWSSupport
   module Matchers
-    class HaveAWSTags
+    class HaveAWSObjectTags
       include RSpec::Matchers::Composable
       include AWSSupport::DeepMatcher
 
@@ -43,7 +43,7 @@ module AWSSupport
         if aws_object.nil?
           differences << "#{resource_name}[#{name}] did not exist!"
         else
-          differences += match_hashes_failure_messages(expected_tags, aws_object.tags, "#{resource_name}[#{name}]")
+          differences += match_hashes_failure_messages(expected_tags, aws_object.tags.to_h, "#{resource_name}[#{name}]")
         end
 
         differences
