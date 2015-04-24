@@ -21,3 +21,5 @@ end
 machine 'ref-machine-1' do
   action :destroy
 end
+
+# more examples in spec/integration/aws_tagged_items_spec.rb
